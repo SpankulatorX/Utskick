@@ -5,6 +5,23 @@
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 [![Android 8+](https://img.shields.io/badge/Android-8.0%2B-green.svg)](#)
 [![Zero network](https://img.shields.io/badge/network-zero-brightgreen.svg)](#privacy-f%C3%B6rst--inte-i-efterhand)
+[![Latest release](https://img.shields.io/github/v/release/SpankulatorX/Utskick)](https://github.com/SpankulatorX/Utskick/releases/latest)
+
+## ⬇️ Ladda ner appen
+
+> **[Utskick-1.0.0-universal.apk](https://github.com/SpankulatorX/Utskick/releases/latest)** — direkt nedladdning från GitHub Releases.
+
+På din Android-telefon:
+
+1. Tryck på den nedladdade APK-filen
+2. Säg ja till "tillåt installation från okänd källa" (engångsfråga)
+3. Tryck **Installera**
+4. Vid första start: välj språk, läs igenom integritetspolicy och friskrivning, godkänn `Skicka SMS`-behörigheten
+
+Inga utvecklarkunskaper behövs. Funkar på GrapheneOS och vanlig Android 8+.
+
+**SHA-256 av v1.0.0-APK:n:** `f24fae5eb7a134ba7529754c195bf46a0a276dbc0c10eb81cda34d88ee4fca8c`
+(Verifiera med `apksigner verify --print-certs Utskick-1.0.0-universal.apk` om du är paranoid — det rekommenderas.)
 
 ---
 
