@@ -16,7 +16,7 @@
   -->
 
 <resources>
-    <string name="app_name">MsgGo</string>
+    <string name="app_name">Utskick</string>
     <string name="app_description">A modern batch SMS utility</string>
 
     <!-- General UI -->
@@ -87,7 +87,7 @@
     <string name="disclaimer">Disclaimer</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="license">License</string>
-    <string name="made_by">Made with ❤️ by Yztz</string>
+    <string name="made_by">Developed by Jonas Millard. Based on MsgGo (GPL-3.0) by yztz.</string>
     <string name="visit_source_code">Visit Source Code</string>
     <string name="going_to_url">Proceeding to %s</string>
     <string name="visit">Visit</string>
@@ -115,7 +115,7 @@
     <string name="sending_completed">Completed</string>
     <string name="sms_sent_success">#%1$d [%2$s] Sent successfully</string>
     <string name="sms_sent_failed">#%1$d [%2$s] Failed (Code %3$d)</string>
-    <string name="notification_title">MsgGo SMS Batch</string>
+    <string name="notification_title">Utskick — SMS</string>
     <string name="notification_progress_format">Sending: %1$d/%2$d</string>
     <string name="select_number_column_dialog_title">Select Number Column</string>
     <string name="preview_title">Message Preview</string>
@@ -187,4 +187,34 @@
     <string name="sent">Sent</string>
     <string name="failed">Failed</string>
     <string name="paused">Paused</string>
+
+    <!-- Anti-spam protection -->
+    <string name="category_anti_spam">Anti-spam protection</string>
+
+    <string name="batch_pause">Batch pause</string>
+    <string name="batch_pause_summary_on">Pause %1$d–%2$d min after every %3$d SMS</string>
+    <string name="batch_pause_summary_off">Off — no extra pause between batches</string>
+    <string name="batch_pause_dialog_title">Configure batch pause</string>
+    <string name="batch_size_label">Batch size (number of SMS)</string>
+    <string name="batch_pause_min_label">Minimum pause (minutes)</string>
+    <string name="batch_pause_max_label">Maximum pause (minutes)</string>
+    <string name="batch_pause_invalid">Maximum must be ≥ minimum</string>
+
+    <string name="quiet_hours">Quiet hours</string>
+    <string name="quiet_hours_summary_on">Pause from %1$s to %2$s</string>
+    <string name="quiet_hours_summary_off">Off — sends at any time</string>
+    <string name="quiet_hours_dialog_title">Configure quiet hours</string>
+    <string name="quiet_hours_start_label">Pause from</string>
+    <string name="quiet_hours_end_label">Pause to</string>
+
+    <string name="schedule_spread">Time spread</string>
+    <string name="schedule_spread_summary_on">Spread send over %1$d h</string>
+    <string name="schedule_spread_summary_off">Off — uses fixed delay between SMS</string>
+    <string name="schedule_spread_dialog_title">Configure time spread</string>
+    <string name="schedule_spread_hours_label">Hours to spread send across</string>
+    <string name="schedule_spread_hint">Useful for very large lists. Each SMS gets longer interval (e.g. 200 SMS over 4h = ~72 sec/SMS).</string>
+
+    <string name="time_format_hhmm">%1$02d:%2$02d</string>
+    <string name="hour_unit">h</string>
+    <string name="minute_unit">min</string>
 </resources>
