@@ -1,0 +1,16 @@
+# Copy this file to signing.properties (which is .gitignored) and fill in the
+# values. The release build will use these to sign the APK.
+#
+# Generate a keystore once with:
+#   keytool -genkey -v -keystore utskick-release.jks -alias utskick \
+#       -keyalg RSA -keysize 2048 -validity 10000 \
+#       -dname "CN=Your Name, O=Your Org, C=SE"
+#
+# Keep utskick-release.jks AND the password in a safe place (password manager,
+# offline backup). Losing them means future updates cannot be installed over
+# the existing app — users would have to uninstall and reinstall.
+
+STORE_FILE=utskick-release.jks
+STORE_PASSWORD=change-me
+KEY_ALIAS=utskick
+KEY_PASSWORD=change-me

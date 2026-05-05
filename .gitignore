@@ -7,3 +7,8 @@
 .externalNativeBuild
 .cxx
 /.idea/
+
+# Signing — never commit keystore or passwords
+/signing.properties
+*.jks
+*.keystore
