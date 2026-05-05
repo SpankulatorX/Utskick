@@ -322,7 +322,6 @@ public class MainActivity extends AppCompatActivity implements HomeFrag.DataLoad
         
         // Check permissions
         List<String> permissions = new ArrayList<>();
-        permissions.add(Manifest.permission.READ_PHONE_STATE);
         permissions.add(Manifest.permission.SEND_SMS);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) permissions.add(Manifest.permission.FOREGROUND_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) permissions.add(Manifest.permission.POST_NOTIFICATIONS);
@@ -360,17 +359,10 @@ public class MainActivity extends AppCompatActivity implements HomeFrag.DataLoad
     }
 
     private void initApp() {
-        // observeLoadStatus(); 
+        // observeLoadStatus();
         initFragment();
-        if (SMSSender.getSubs(this).isEmpty()) {
-            if (XiaomiUtil.isXiaomi()) {
-                Log.d(TAG, "xiaomi: check perm");
-                XiaomiUtil.showXiaomiPermissionDialog(this);
-                return;
-            }
-            ToastUtil.show(this, getString(R.string.no_sim_found_exit));
-            finish();
-        }
+        // SIM-kort detekteras inte längre (READ_PHONE_STATE borttaget) — appen
+        // skickar via enhetens standard-SIM, vilket räcker för en föreningstelefon.
         checkShare();
     }
 

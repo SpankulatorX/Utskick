@@ -32,25 +32,14 @@ import java.util.List;
 public class SMSSender {
     public static final String SENT_SMS_ACTION = "top.yztz.msggo.action.SENT_SMS_ACTION";
 
+    // SIM-detektering kräver READ_PHONE_STATE som vi inte längre begär.
+    // Returnerar därför alltid tom lista / null. Sändning sker via enhetens standard-SIM.
+
     public static SubscriptionInfo getSubBySlotId(Context context, int slot) {
-        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        @SuppressLint("MissingPermission") List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-        if (subscriptionInfoList == null) return null;
-        
-        for (SubscriptionInfo sub : subscriptionInfoList) {
-            if (sub.getSimSlotIndex() == slot) return sub;
-        }
         return null;
     }
 
     public static SubscriptionInfo getSubBySubscriptionId(Context context, int subId) {
-        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        @SuppressLint("MissingPermission") List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-        if (subscriptionInfoList == null) return null;
-
-        for (SubscriptionInfo sub : subscriptionInfoList) {
-            if (sub.getSubscriptionId() == subId) return sub;
-        }
         return null;
     }
 
@@ -59,9 +48,7 @@ public class SMSSender {
     }
 
     public static List<SubscriptionInfo> getSubs(Context context) {
-        SubscriptionManager subscriptionManager = (SubscriptionManager) context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
-        @SuppressLint("MissingPermission") List<SubscriptionInfo> subscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
-        return subscriptionInfoList != null ? subscriptionInfoList : new ArrayList<>();
+        return new ArrayList<>();
     }
 
     /**
