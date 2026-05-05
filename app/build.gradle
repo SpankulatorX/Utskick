@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "top.yztz.msggo"
-    compileSdk = 35
+    compileSdk = 36
     defaultConfig {
         applicationId "top.yztz.msggo"
         minSdkVersion 26
@@ -35,7 +35,7 @@ android {
         variant.outputs.all {
             def abi = filters.find { it.filterType == 'ABI' }?.identifier ?: "universal"
             def typeSuffix = variant.buildType.name == 'release' ? "" : "-unsigned"
-            outputFileName = "MsgGo-${variant.versionName}-${abi}${typeSuffix}.apk"
+            outputFileName = "Utskick-${variant.versionName}-${abi}${typeSuffix}.apk"
         }
     }
 
