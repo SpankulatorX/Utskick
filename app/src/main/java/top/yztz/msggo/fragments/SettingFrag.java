@@ -313,7 +313,7 @@ public class SettingFrag extends Fragment {
 
         // Check Update
         mRowCheckUpdate.setOnClickListener(v -> {
-            String releaseUrl = "https://github.com/yztz/MsgGo/releases/latest";
+            String releaseUrl = "https://github.com/SpankulatorX/Utskick/releases/latest";
             new MaterialAlertDialogBuilder(context)
                     .setTitle(getString(R.string.check_update))
                     .setMessage(getString(R.string.going_to_url, releaseUrl))
@@ -355,7 +355,7 @@ public class SettingFrag extends Fragment {
             intent.putExtra(Intent.EXTRA_STREAM, contentUri);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             
-            startActivity(Intent.createChooser(intent, "导出调试日志"));
+            startActivity(Intent.createChooser(intent, getString(R.string.debug_log)));
 
         } catch (Exception e) {
             e.printStackTrace();
