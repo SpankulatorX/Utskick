@@ -29,8 +29,10 @@ import java.util.Set;
 
 import top.yztz.msggo.exception.DataLoadFailed;
 import top.yztz.msggo.services.SMSSender;
+import top.yztz.msggo.util.CsvReader;
 import top.yztz.msggo.util.ExcelReader;
 import top.yztz.msggo.util.HashUtils;
+import top.yztz.msggo.util.JsonReader;
 
 public class DataModel implements Serializable {
     private static String[] titles = null;
@@ -54,12 +56,31 @@ public class DataModel implements Serializable {
      * @param path    excel file to load
      */
     public static synchronized void load(String path) throws DataLoadFailed {
-        ExcelReader reader = new ExcelReader();
-        reader.read(path);
-        DataModel.data = reader.readExcelContent();
-        DataModel.titles = reader.getTitles();
+        String lower = path.toLowerCase();
+        String[] titles;
+        java.util.ArrayList<HashMap<String, String>> data;
+
+        if (lower.endsWith(".csv") || lower.endsWith(".tsv") || lower.endsWith(".txt")) {
+            CsvReader reader = new CsvReader();
+            reader.read(path);
+            titles = reader.getTitles();
+            data = reader.readContent();
+        } else if (lower.endsWith(".json")) {
+            JsonReader reader = new JsonReader();
+            reader.read(path);
+            titles = reader.getTitles();
+            data = reader.readContent();
+        } else {
+            ExcelReader reader = new ExcelReader();
+            reader.read(path);
+            titles = reader.getTitles();
+            data = reader.readExcelContent();
+        }
+
+        DataModel.data = data;
+        DataModel.titles = titles;
         DataModel.path = path;
-        DataModel.signature = HashUtils.toMd5(path + "+" + String.join("-", reader.getTitles()));
+        DataModel.signature = HashUtils.toMd5(path + "+" + String.join("-", titles));
         DataModel.timestamp = System.currentTimeMillis();
 
         DataModel.template = "";

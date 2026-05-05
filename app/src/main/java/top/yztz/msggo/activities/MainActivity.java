@@ -389,7 +389,14 @@ public class MainActivity extends AppCompatActivity implements HomeFrag.DataLoad
                 "application/x-excel",
                 "application/wps-office.xls",
                 "application/wps-office.xlsx",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "text/csv",
+                "text/comma-separated-values",
+                "application/csv",
+                "text/tab-separated-values",
+                "text/plain",
+                "application/json",
+                "text/json"
         };
         intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
         excelPickerLauncher.launch(intent);
