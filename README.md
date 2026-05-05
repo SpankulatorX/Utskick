@@ -1,116 +1,144 @@
-# MsgGo
+# Utskick
 
-<img src="./app/src/main/ic_launcher_v2-playstore.png" width="30%">
+> SMS-utskick för svenska föreningar — utan spårning, utan moln, utan att din medlemslista lämnar telefonen.
 
-安卓平台上的一款轻量的短信群发App。
-
-![](https://img.shields.io/badge/Android-3DDC84?logo=android&logoColor=ffffff)
-![](https://img.shields.io/github/v/release/yztz/MsgGo.svg)
-![](https://img.shields.io/github/license/yztz/MsgGo)
-![](https://img.shields.io/github/downloads/yztz/MsgGo/total?color=green)
-
-
-[中文](./README.md) | [English](./README_EN.md)
-
-
-> [!IMPORTANT]
-> 本软件所提供的群发功能系基于手机系统原生的短信接口实现。
-> 1. 本软件不提供任何中转分发服务，发送行为直接关联您的SIM卡号码，属于您的个人通信范畴。
-> 2. 您的短信发送量、内容合规性及送达质量均受短信运营商的实时监控与限制。
-> 3. 本软件无法干预运营商的审查机制及计费标准。用户应对其发送内容的合法性及由此产生的法律后果负全部责任。
-> 4. 严禁利用本工具从事电信诈骗、垃圾信息传播等违法违规活动
-> 5. 本软件仅限于个人或企业内部合规通讯使用，严禁用于商业营销及各类广告投递。如需开展营销业务，请咨询具备相关资质的专业短信服务供应商
-
-## 更新
-
-元旦快乐，第五个年头！元旦特别版更新，请大家下载体验！
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
+[![Android 8+](https://img.shields.io/badge/Android-8.0%2B-green.svg)](#)
+[![Zero network](https://img.shields.io/badge/network-zero-brightgreen.svg)](#privacy-f%C3%B6rst--inte-i-efterhand)
 
 ---
 
-距该项目发布已经将近 4 年了，本次更新带来了全新的外观材质（Material 3），更加优秀的交互，欢迎大家下载体验！
+## Privacy först — inte i efterhand
 
-## Features
+Utskick är byggd med en princip: **din data lämnar aldrig telefonen.**
 
-* [新] 历史记录功能
-* [新] 短信资费计算
-* [新] 短信发送预览
-* [新] HyperOS支持
-* [新] 多语言支持
-* 支持多卡选择
-* **无联网权限**
-* Material Design 3
-* 基于excel数据格式导入
-* 自动获取短信变量名
-* 提供短信编辑器，支持短信[**魔法变量**](#魔法变量)代换
-* 即时回馈信息发送状态
-* 无需固定格式，App内指定号码列
-* *第三方应用数据一键分享导入*
+Det är inte ett löfte i en integritetspolicy. Det är en *teknisk* garanti, upprätthållen av Android-systemet självt:
 
-## 截图
-<div style="display: flex; flex-direction: row; justify-content: space-between;">
-<img src="./fastlane/metadata/android/zh-CN/images/phoneScreenshots/1.png" width="18%">
-<img src="./fastlane/metadata/android/zh-CN/images/phoneScreenshots/2.png" width="18%">
-<img src="./fastlane/metadata/android/zh-CN/images/phoneScreenshots/3.png" width="18%">
-<img src="./fastlane/metadata/android/zh-CN/images/phoneScreenshots/4.png" width="18%">
-<img src="./fastlane/metadata/android/zh-CN/images/phoneScreenshots/5.png" width="18%">
-</div>
+> **Appen begär ingen behörighet att använda internet.**
+> Ingen `INTERNET`. Ingen `ACCESS_NETWORK_STATE`.
+> Android-sandboxen blockerar all nätverkstrafik från processer utan dessa behörigheter.
 
-## 下载
+Det innebär att:
 
-[<img src="https://raw.githubusercontent.com/rubenpgrady/get-it-on-github/refs/heads/main/get-it-on-github.png" alt="Get it on GitHub" height="80">](https://github.com/yztz/MsgGo/releases/latest)
-[<img src="https://f-droid.org/badge/get-it-on-zh-cn.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/top.yztz.msggo)
+- Telefonnummer, namn, importerade filer och meddelandemallar **kan inte** skickas någonstans, inte ens om appen ville.
+- Det finns **inga** spårare, ingen analys, inga annons-SDK:er, ingen telemetri, ingen "phone home"-funktion.
+- Det finns **ingen** kontoinloggning. Du har inget konto. Vi (och alla andra) har ingenting om dig.
+- Allt — variabel-substitution, generering av meddelanden, sändning — sker lokalt på din enhet.
 
+Verifiera själv: kolla [`AndroidManifest.xml`](app/src/main/AndroidManifest.xml). Det enda appen ber om är behörigheter den behöver för att skicka SMS.
 
-## 基本使用
-1. 导入数据
-2. 选择收件人号码列
-3. 编辑短信内容
-4. 选择 SIM 卡
-5. 开始发送
+| Behörighet                | Används till                                     |
+| ------------------------- | ------------------------------------------------ |
+| `SEND_SMS`                | Skicka SMS — kärnfunktionen                      |
+| `READ_SMS` / `RECEIVE_*`  | Ta emot leveranskvittenser från operatören       |
+| `POST_NOTIFICATIONS`      | Visa progress-avisering under utskick            |
+| `FOREGROUND_SERVICE*`     | Tillåt appen jobba i bakgrunden under utskicket  |
+| `VIBRATE`                 | Vibration vid avisering                          |
 
-> [!NOTE]  
-> 1. 兼容.xls/.xlsx格式
-> 2. 发送延迟不要过短，否则可能存在拦截问题。
-> 3. 已知运营商一般存在发送限制，例如移动为200条/小时，1000条/天，超出后可能会被限制收发。
+`READ_PHONE_STATE` (som ofta visas vilseledande som "tillgång att ringa telefonsamtal") är **borttaget** — appen använder enhetens standard-SIM utan att läsa SIM-information.
 
-## Excel格式要求
-| 列名  | 列名 | 列名 | ... |
-|-----|----|----|-----|
-| 数据  | 数据 | 数据 | ... |
-| 数据  | 数据 | 数据 | ... |
-| ... |    |    |     |
+---
 
+## Skärmdumpar
 
-## 魔法变量
+<table>
+<tr>
+<td width="33%"><img src="docs/screenshots/01-language-chooser.png" alt="Språkval först"/><br/><sub><b>1.</b> Språkval först — innan något annat visas</sub></td>
+<td width="33%"><img src="docs/screenshots/02-privacy.png" alt="Integritetspolicy på svenska"/><br/><sub><b>2.</b> Integritetspolicy på valt språk, utan referenser till tredjepartsappar</sub></td>
+<td width="33%"><img src="docs/screenshots/03-disclaimer.png" alt="Friskrivning"/><br/><sub><b>3.</b> Friskrivning med GDPR-relevant information för svenska föreningar</sub></td>
+</tr>
+<tr>
+<td width="33%"><img src="docs/screenshots/04-home-empty.png" alt="Hemskärm"/><br/><sub><b>4.</b> Hemskärm — importera medlemslista, redigera SMS, skicka</sub></td>
+<td width="33%"><img src="docs/screenshots/05-settings-antispam.png" alt="Inställningar med anti-spam-skydd"/><br/><sub><b>5.</b> Inställningar med dedikerad sektion för anti-spam-skydd</sub></td>
+<td width="33%"><img src="docs/screenshots/06-batch-pause-dialog.png" alt="Batch-paus konfiguration"/><br/><sub><b>6.</b> Batch-paus konfigurerbar — försvarar mot Androids egen rate-limiter</sub></td>
+</tr>
+</table>
 
-什么是魔法变量？
+---
 
-例如以下场景：
+## Funktioner
 
-> 你要给多个人发送这样的短信：${xxx}同学，你好，balabala...
+### Importera medlemslista
+- **Excel** (`.xls`, `.xlsx`) — direkt från föreningens medlemsregister
+- **CSV** (`.csv`, `.tsv`, `.txt`) — auto-detektering av separator (`,`, `;`, tab) och UTF-8 BOM
+- **JSON** (`.json`) — array av objekt med konsekventa nycklar
 
-这里的`${xxx}`就是我们的魔法变量，在导入的excel中，每一个魔法变量对应的就是每一列，例如：
+Första raden / objektets nycklar blir kolumnrubriker. En kolumn pekas ut som telefonnummer; övriga kan användas som variabler i mallen.
 
-| 姓名 | 手机号码 |
-|----|------|
-| 张三 | 123  |
-| 李四 | 456  |
+### Personaliserade meddelanden
+Skriv en mall med variabler från din importerade data:
 
-那么这里就有两个魔法变量`姓名`与`手机号码`，在短信编辑界面中，只需要点击左下角的小按钮即可选择你需要的魔法变量，比如：
+```
+Hej ${Namn}! Mötet på torsdag flyttas till ${Plats}.
+Vänliga hälsningar, styrelsen.
+```
 
-> ${姓名}，你好，你的手机号为${手机号码}
+Varje mottagare får ett unikt meddelande — vilket är det viktigaste enskilda skyddet mot operatörens spam-filter.
 
-届时，软件将会自动根据每行记录来替换此变量：
+### Anti-spam-skydd
 
-| 姓名 | 手机号码 | 对应的短信内容         |
-|----|------|-----------------|
-| 张三 | 123  | 张三，你好，你的手机号为123 |
-| 李四 | 456  | 李四，你好，你的手机号为456 |
+Tre lager som arbetar tillsammans för att hålla utskicken under operatörens fair-use-radar:
 
-如果帮助到您，请赐予一颗小星星吧:)  
+1. **Per-SMS-fördröjning** (1–8 s, slumpmässig om så önskas) — undviker burst-mönster
+2. **Batch-paus** — efter t.ex. var 30:e SMS, vänta 5–15 min slumpmässigt. Direkt skydd mot Androids inbyggda rate-limiter (~30 SMS / 30 min).
+3. **Tids-spärr (nattvila)** — vägrar skicka mellan användardefinierade tider (default 22:00–08:00). Mänskligt mönster, inte bot.
+4. **Tidsspridning** — för stora listor, sprid utskicket över flera timmar. T.ex. 200 SMS över 4 h ≈ 72 sek mellan varje.
 
-## END
+Alla parametrar är konfigurerbara per förening.
 
-任何软件使用上的问题或者bug欢迎提交issue~
+### Övrigt
+- **Material 3 design** — modernt, OLED-vänligt mörkt läge
+- **Multi-SIM-stöd är borttaget** för att undvika `READ_PHONE_STATE` — använder enhetens standard-SIM
+- **Svenska & engelska** — språkval vid första start, ändras när som helst i inställningarna
+- **GDPR by design** — ingen extern dataöverföring, ingen lagring utöver appens privata cache, "Rensa cache" raderar allt
 
-**郑重提醒：本项目仅供学习，切勿利用该软件传播违法骚扰内容，使用者行为以及目的与本人无关！**
+---
+
+## Bygga från källkod
+
+Förutsättningar:
+- JDK 17 eller 21
+- Android SDK med `build-tools 35+` och `platforms;android-36`
+- Gradle hanteras av wrappern (`./gradlew`)
+
+```bash
+git clone https://github.com/SpankulatorX/Utskick.git
+cd Utskick
+echo "sdk.dir=$ANDROID_HOME" > local.properties
+./gradlew assembleDebug
+```
+
+Färdig APK hamnar i `app/build/outputs/apk/debug/Utskick-3.9-universal-unsigned.apk`.
+
+För release-bygge: skapa en signing keystore och konfigurera `signingConfigs` i `app/build.gradle`. Se [Android-dokumentationen](https://developer.android.com/studio/publish/app-signing) för detaljer.
+
+---
+
+## Installation på GrapheneOS / Android
+
+1. Aktivera **Installera okända appar** för din filhanterare i Androids inställningar
+2. Kopiera APK:n till telefonen (USB, syncthing, e-post — vad som funkar för dig)
+3. Tryck på filen för att installera
+4. Vid första start, godkänn `Skicka SMS`-behörigheten
+
+Appen är testad på GrapheneOS men använder bara standard-Android-API:er, så den fungerar på vanlig Android också.
+
+---
+
+## Krediter
+
+Utskick är en fork av **[MsgGo](https://github.com/yztz/MsgGo)** (GPL-3.0) av [yztz](https://github.com/yztz). Den ursprungliga arkitekturen — sändningsmotorn, mall-systemet, file-pickern — är yztz arbete. Tack.
+
+Anpassningar för svenska föreningar (svensk översättning, CSV/JSON-import, språkval först, borttagning av telefonbehörighet, anti-spam-skydd) av **Jonas Millard**.
+
+---
+
+## Licens
+
+GPL-3.0 — se [LICENSE](LICENSE). Forken behåller ursprungslicensen oförändrad.
+
+---
+
+## English summary
+
+Utskick is a privacy-first bulk SMS tool for Swedish associations, forked from [MsgGo](https://github.com/yztz/MsgGo). Key differentiator: **the app declares no internet permission**, so the Android sandbox itself prevents any data from leaving the device. No telemetry, no account, no analytics — verifiable by inspecting the manifest. Adds CSV/JSON import alongside Excel, Swedish translation, and anti-spam scheduling controls (batch pause, quiet hours, time spread).
