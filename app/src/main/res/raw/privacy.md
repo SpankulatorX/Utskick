@@ -1,31 +1,28 @@
-**Last Updated: January 2, 2026**
+**Last updated: May 2026**
 
-MsgGo (hereinafter referred to as "this application") understands the importance of privacy to you and is committed to protecting your personal data. This Privacy Policy is intended to explain how this application processes data, the reasons we request permissions, and our efforts to protect your privacy.
+Utskick (hereafter "this app") is designed to keep your data on your device. This privacy policy explains how the app handles data and which permissions it needs.
 
-### 1. Core Principle: Zero Network Access, Local Processing
-MsgGo is designed to be a completely private and secure tool. This application **does not request external network access permissions**. This means:
-- All of your data (including Excel file content, phone numbers, SMS templates, etc.) will **never** be uploaded to any server or third-party cloud.
-- All logic processing (variable substitution, SMS generation, transmission control) is completed entirely locally on your device.
+### 1. No network access — local processing only
+Utskick is built to be a fully private SMS tool. **The app does not request internet permissions.** This is enforced by the Android system itself (see the manifest), which means:
+- Your data — phone numbers, message templates, imported files — **cannot** leave your device.
+- All processing (variable substitution, message generation, sending) happens entirely locally.
 
-### 2. How We Use Your Data Through Permissions
-To achieve the core function of bulk SMS sending, we need to request the following permissions:
+### 2. Permissions and how they are used
+- **Send SMS (`SEND_SMS`)** — required to send the messages you have prepared.
+- **Read external storage** — used to read the file (Excel/CSV/JSON) that you yourself select.
+- **Foreground service (`FOREGROUND_SERVICE`)** and **Notifications (`POST_NOTIFICATIONS`)** — used so the app is not interrupted by the system while sending many messages, and to show progress.
 
-- **Send SMS (SEND_SMS)**: Core function. Used to execute the bulk SMS sending tasks initiated by you.
-- **Read Phone State (READ_PHONE_STATE)**: Used to identify SIM card information in multi-SIM devices (such as slot index and carrier name) so that you can select a specific SIM card to send messages.
-- **Read/Write External Storage (READ_EXTERNAL_STORAGE)**: Used to read the Excel data files you select and authorize, and to save files when you actively export debug logs.
-- **Foreground Service (FOREGROUND_SERVICE)** and **Notification Permission (POST_NOTIFICATIONS)**: To ensure that the application is not interrupted by the system during the process of sending a large number of messages (even when switched to the background), and to provide real-time feedback on sending progress.
+### 3. Storage and lifecycle
+- **Imported data** is copied to the app's private cache. Clearing the cache removes it immediately.
+- **Local history** (recently opened files, message templates, column choices) is stored in the app's private folder. Use *Settings → Clear cache* to delete it.
+- **Debug logs** record only the app's own activity. They never leave the device unless you manually export and share them.
 
-### 3. Data Storage and Lifecycle
-- **Excel Data**: We copy your input data to a cache directory for access. After clearing the cache, the data expires immediately.
-- **Local History**: To enhance your user experience, this application saves your recently opened file paths, SMS templates, and number column selections locally. This data is stored in the application's private directory; you can completely remove these records at any time by clicking "Clear Cache" in the "Settings".
-- **Debug Logs**: Debug logs only record the application's operational logic. Logs can only be accessed externally if you **manually click** "Export Debug Logs" and actively share them with the developer.
+### 4. No third-party services
+Utskick contains no analytics, no trackers, no ad SDKs, and no telemetry. Without internet permission, any form of remote data collection is technically impossible.
 
-### 4. Third-Party Services
-MsgGo **does not contain** any third-party analysis tools, trackers, advertising SDKs, or SDK monitoring plugins. Due to the lack of network permissions, any form of third-party data collection is physically disabled within this application.
+### 5. Your rights
+- You can revoke any permission at any time in Android system settings.
+- You can delete all locally stored data via *Settings → Clear cache*.
 
-### 5. Your Rights
-- **Withdraw Permissions**: You can withdraw granted permissions at any time through system settings, but this may result in the unavailability of related functions.
-- **Delete Data**: You can delete all locally saved task configuration caches via "Settings - Clear Cache".
-
-### 6. Contact Us
-Since this application is an open-source tool and does not have network communication capabilities, if you have any questions about the Privacy Policy, please contact us via the source code link in the settings interface.
+### 6. About this version
+Utskick is an open-source fork of [MsgGo](https://github.com/yztz/MsgGo) (GPL-3.0) by yztz, modified by Jonas Millard for Swedish association use.
