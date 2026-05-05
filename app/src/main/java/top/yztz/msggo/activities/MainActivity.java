@@ -246,14 +246,30 @@ public class MainActivity extends AppCompatActivity implements HomeFrag.DataLoad
         );
         setContentView(R.layout.activity_main);
 
-        // Check Privacy Policy and Disclaimer
-        if (!SettingManager.isPrivacyAccepted()) {
+        // First-run flow: language → privacy → disclaimer → main
+        if (!SettingManager.isLanguageChosen()) {
+            showLanguageChooserDialog();
+        } else if (!SettingManager.isPrivacyAccepted()) {
             showPrivacyDialog();
         } else if (!SettingManager.isDisclaimerAccepted()) {
             showDisclaimerDialog();
         } else {
             checkPermissionsAndInit();
         }
+    }
+
+    private void showLanguageChooserDialog() {
+        final String[] codes = {"sv", "en-US", "auto"};
+        final String[] labels = {"Svenska", "English", "System / Auto"};
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle("Välj språk / Choose language")
+                .setItems(labels, (dialog, which) -> {
+                    LocaleUtils.setLocale(codes[which]);
+                    SettingManager.setLanguageChosen(true);
+                    recreate();
+                })
+                .setCancelable(false)
+                .show();
     }
 
     private void showPrivacyDialog() {
