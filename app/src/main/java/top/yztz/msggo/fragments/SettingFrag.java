@@ -17,11 +17,13 @@
 
 package top.yztz.msggo.fragments;
 
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -64,9 +66,12 @@ public class SettingFrag extends Fragment {
     private static final String TAG = "SettingFrag";
     private Context context;
     private MaterialSwitch mSwitchAutoEditor, mSwitchRandomizeDelay, mSwitchSensitiveWord;
+    private MaterialSwitch mSwitchBatchPause, mSwitchQuietHours, mSwitchScheduleSpread;
     private MaterialCardView mCardClearCache;
     private View mRowExportLog, mRowAboutApp, mRowLanguage, mRowCheckUpdate, mRowDarkMode;
+    private View mRowBatchPause, mRowQuietHours, mRowScheduleSpread;
     private TextView mTvCache, mTvDelayValue, mTvSmsRateValue, mTvLanguage, mTvDarkModeSummary;
+    private TextView mTvBatchPauseSummary, mTvQuietHoursSummary, mTvScheduleSpreadSummary;
     private LinearLayout mCardSmsRate;
     private boolean isUpdatingUI = false;
     private Slider mSliderDelay;
@@ -104,6 +109,16 @@ public class SettingFrag extends Fragment {
         mRowDarkMode = view.findViewById(R.id.row_dark_mode);
         mTvDarkModeSummary = view.findViewById(R.id.tv_dark_mode_summary);
         mSwitchSensitiveWord = view.findViewById(R.id.switch_sensitive_word);
+
+        mSwitchBatchPause = view.findViewById(R.id.switch_batch_pause);
+        mSwitchQuietHours = view.findViewById(R.id.switch_quiet_hours);
+        mSwitchScheduleSpread = view.findViewById(R.id.switch_schedule_spread);
+        mTvBatchPauseSummary = view.findViewById(R.id.tv_batch_pause_summary);
+        mTvQuietHoursSummary = view.findViewById(R.id.tv_quiet_hours_summary);
+        mTvScheduleSpreadSummary = view.findViewById(R.id.tv_schedule_spread_summary);
+        mRowBatchPause = view.findViewById(R.id.row_batch_pause);
+        mRowQuietHours = view.findViewById(R.id.row_quiet_hours);
+        mRowScheduleSpread = view.findViewById(R.id.row_schedule_spread);
 
         mSliderDelay = view.findViewById(R.id.slider_delay);
         mSliderDelay.setValueFrom(Settings.SEND_DELAY_MIN);
@@ -274,6 +289,28 @@ public class SettingFrag extends Fragment {
                     .show();
         });
 
+        // Anti-spam: toggle switches
+        mSwitchBatchPause.setOnCheckedChangeListener((b, isChecked) -> {
+            if (isUpdatingUI) return;
+            SettingManager.setBatchPauseEnabled(isChecked);
+            showInfo();
+        });
+        mSwitchQuietHours.setOnCheckedChangeListener((b, isChecked) -> {
+            if (isUpdatingUI) return;
+            SettingManager.setQuietHoursEnabled(isChecked);
+            showInfo();
+        });
+        mSwitchScheduleSpread.setOnCheckedChangeListener((b, isChecked) -> {
+            if (isUpdatingUI) return;
+            SettingManager.setScheduleSpreadEnabled(isChecked);
+            showInfo();
+        });
+
+        // Anti-spam: configure rows
+        mRowBatchPause.setOnClickListener(v -> showBatchPauseDialog());
+        mRowQuietHours.setOnClickListener(v -> showQuietHoursDialog());
+        mRowScheduleSpread.setOnClickListener(v -> showScheduleSpreadDialog());
+
         // Check Update
         mRowCheckUpdate.setOnClickListener(v -> {
             String releaseUrl = "https://github.com/yztz/MsgGo/releases/latest";
@@ -387,8 +424,160 @@ public class SettingFrag extends Fragment {
         // Display language
         String langText = LocaleUtils.getLanguageDisplayName(context, SettingManager.getLanguage());
         mTvLanguage.setText(langText);
-        
+
+        // Anti-spam: switches
+        mSwitchBatchPause.setChecked(SettingManager.isBatchPauseEnabled());
+        mSwitchQuietHours.setChecked(SettingManager.isQuietHoursEnabled());
+        mSwitchScheduleSpread.setChecked(SettingManager.isScheduleSpreadEnabled());
+
+        // Anti-spam: summaries
+        if (SettingManager.isBatchPauseEnabled()) {
+            mTvBatchPauseSummary.setText(getString(R.string.batch_pause_summary_on,
+                    SettingManager.getBatchPauseMinMinutes(),
+                    SettingManager.getBatchPauseMaxMinutes(),
+                    SettingManager.getBatchSize()));
+        } else {
+            mTvBatchPauseSummary.setText(R.string.batch_pause_summary_off);
+        }
+
+        if (SettingManager.isQuietHoursEnabled()) {
+            mTvQuietHoursSummary.setText(getString(R.string.quiet_hours_summary_on,
+                    formatMinutes(SettingManager.getQuietHoursStart()),
+                    formatMinutes(SettingManager.getQuietHoursEnd())));
+        } else {
+            mTvQuietHoursSummary.setText(R.string.quiet_hours_summary_off);
+        }
+
+        if (SettingManager.isScheduleSpreadEnabled()) {
+            mTvScheduleSpreadSummary.setText(getString(R.string.schedule_spread_summary_on,
+                    SettingManager.getScheduleSpreadHours()));
+        } else {
+            mTvScheduleSpreadSummary.setText(R.string.schedule_spread_summary_off);
+        }
+
         isUpdatingUI = false;
     }
 
+    private String formatMinutes(int totalMinutes) {
+        int h = (totalMinutes / 60) % 24;
+        int m = totalMinutes % 60;
+        return getString(R.string.time_format_hhmm, h, m);
+    }
+
+    private int parseIntOr(EditText et, int fallback) {
+        try {
+            return Integer.parseInt(et.getText().toString().trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    private void showBatchPauseDialog() {
+        LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int pad = (int) (24 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad / 2, pad, 0);
+
+        EditText etSize = makeNumberInput(getString(R.string.batch_size_label),
+                SettingManager.getBatchSize());
+        EditText etMin = makeNumberInput(getString(R.string.batch_pause_min_label),
+                SettingManager.getBatchPauseMinMinutes());
+        EditText etMax = makeNumberInput(getString(R.string.batch_pause_max_label),
+                SettingManager.getBatchPauseMaxMinutes());
+        layout.addView(etSize);
+        layout.addView(etMin);
+        layout.addView(etMax);
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.batch_pause_dialog_title)
+                .setView(layout)
+                .setPositiveButton(R.string.save, (d, w) -> {
+                    int size = clamp(parseIntOr(etSize, Settings.BATCH_SIZE_DEFAULT),
+                            Settings.BATCH_SIZE_MIN, Settings.BATCH_SIZE_MAX);
+                    int min = clamp(parseIntOr(etMin, Settings.BATCH_PAUSE_MIN_MIN_DEFAULT),
+                            Settings.BATCH_PAUSE_MIN_RANGE, Settings.BATCH_PAUSE_MAX_RANGE);
+                    int max = clamp(parseIntOr(etMax, Settings.BATCH_PAUSE_MAX_MIN_DEFAULT),
+                            Settings.BATCH_PAUSE_MIN_RANGE, Settings.BATCH_PAUSE_MAX_RANGE);
+                    if (max < min) {
+                        ToastUtil.show(context, getString(R.string.batch_pause_invalid));
+                        max = min;
+                    }
+                    SettingManager.setBatchSize(size);
+                    SettingManager.setBatchPauseMinMinutes(min);
+                    SettingManager.setBatchPauseMaxMinutes(max);
+                    showInfo();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void showQuietHoursDialog() {
+        // Show two pickers in sequence: start then end.
+        int startMin = SettingManager.getQuietHoursStart();
+        int endMin = SettingManager.getQuietHoursEnd();
+        int sH = startMin / 60, sM = startMin % 60;
+        int eH = endMin / 60, eM = endMin % 60;
+
+        TimePickerDialog endPicker = new TimePickerDialog(context,
+                (view, h, m) -> {
+                    SettingManager.setQuietHoursEnd(h * 60 + m);
+                    showInfo();
+                }, eH, eM, true);
+        endPicker.setTitle(getString(R.string.quiet_hours_end_label));
+
+        TimePickerDialog startPicker = new TimePickerDialog(context,
+                (view, h, m) -> {
+                    SettingManager.setQuietHoursStart(h * 60 + m);
+                    endPicker.show();
+                }, sH, sM, true);
+        startPicker.setTitle(getString(R.string.quiet_hours_start_label));
+        startPicker.show();
+    }
+
+    private void showScheduleSpreadDialog() {
+        LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int pad = (int) (24 * getResources().getDisplayMetrics().density);
+        layout.setPadding(pad, pad / 2, pad, 0);
+
+        TextView hint = new TextView(context);
+        hint.setText(R.string.schedule_spread_hint);
+        hint.setTextAppearance(android.R.style.TextAppearance_Material_Body2);
+        layout.addView(hint);
+
+        EditText etHours = makeNumberInput(getString(R.string.schedule_spread_hours_label),
+                SettingManager.getScheduleSpreadHours());
+        layout.addView(etHours);
+
+        new MaterialAlertDialogBuilder(context)
+                .setTitle(R.string.schedule_spread_dialog_title)
+                .setView(layout)
+                .setPositiveButton(R.string.save, (d, w) -> {
+                    int hours = clamp(parseIntOr(etHours, Settings.SCHEDULE_SPREAD_HOURS_DEFAULT),
+                            Settings.SCHEDULE_SPREAD_HOURS_MIN, Settings.SCHEDULE_SPREAD_HOURS_MAX);
+                    SettingManager.setScheduleSpreadHours(hours);
+                    showInfo();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private EditText makeNumberInput(String hint, int initialValue) {
+        EditText et = new EditText(context);
+        et.setHint(hint);
+        et.setInputType(InputType.TYPE_CLASS_NUMBER);
+        et.setText(String.valueOf(initialValue));
+        et.setSelection(et.getText().length());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        int margin = (int) (8 * getResources().getDisplayMetrics().density);
+        lp.setMargins(0, margin, 0, margin);
+        et.setLayoutParams(lp);
+        return et;
+    }
+
+    private static int clamp(int v, int lo, int hi) {
+        return Math.max(lo, Math.min(v, hi));
+    }
 }

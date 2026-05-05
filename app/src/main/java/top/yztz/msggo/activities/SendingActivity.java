@@ -39,6 +39,7 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -200,13 +201,89 @@ public class SendingActivity extends AppCompatActivity implements MessageService
 
         updateMessageState(currentIndex, MessageState.WAITING);
 
-        int targetDelay = delay;
-        if (randomize && delay > 1000) {
-            targetDelay = (int) (1000 + Math.random() * (delay - 1000));
+        int totalCount = messages.size();
+
+        // Base per-SMS delay (optionally overridden by schedule spread, then randomized).
+        int baseDelay = delay;
+        if (SettingManager.isScheduleSpreadEnabled() && totalCount > 0) {
+            long spreadMs = SettingManager.getScheduleSpreadHours() * 60L * 60L * 1000L;
+            int spreadDelay = (int) Math.min(spreadMs / totalCount, Integer.MAX_VALUE);
+            baseDelay = Math.max(baseDelay, spreadDelay);
+        }
+        if (randomize && baseDelay > 1000) {
+            baseDelay = (int) (1000 + Math.random() * (baseDelay - 1000));
         }
 
-        Log.d(TAG, "Scheduling message " + currentIndex + " with delay " + targetDelay + "ms");
-        handler.postDelayed(this::executeCurrentSend, targetDelay);
+        // Extra batch pause every N messages (anti-spam).
+        long extraDelay = 0;
+        boolean willPauseLong = false;
+        if (currentIndex > 0
+                && SettingManager.isBatchPauseEnabled()
+                && SettingManager.getBatchSize() > 0
+                && currentIndex % SettingManager.getBatchSize() == 0) {
+            long minMs = SettingManager.getBatchPauseMinMinutes() * 60L * 1000L;
+            long maxMs = SettingManager.getBatchPauseMaxMinutes() * 60L * 1000L;
+            if (maxMs < minMs) maxMs = minMs;
+            extraDelay = minMs + (long) (Math.random() * (maxMs - minMs));
+            willPauseLong = true;
+            Log.i(TAG, "Batch pause: " + extraDelay + "ms after " + currentIndex + " messages");
+        }
+
+        long totalDelay = baseDelay + extraDelay;
+
+        // Quiet hours (anti-spam): if next send falls inside the quiet window,
+        // postpone until the window ends.
+        if (SettingManager.isQuietHoursEnabled()) {
+            long sendAt = System.currentTimeMillis() + totalDelay;
+            long quietEnd = computeQuietHoursEnd(sendAt);
+            if (quietEnd > sendAt) {
+                totalDelay = quietEnd - System.currentTimeMillis();
+                willPauseLong = true;
+                Log.i(TAG, "Quiet hours active: postponing until " + quietEnd);
+            }
+        }
+
+        final boolean longPause = willPauseLong;
+        if (longPause && isBound) service.notifyPaused();
+
+        Log.d(TAG, "Scheduling message " + currentIndex + " with total delay " + totalDelay + "ms");
+        handler.postDelayed(() -> {
+            if (longPause && isBound) service.notifyResumed();
+            executeCurrentSend();
+        }, totalDelay);
+    }
+
+    /**
+     * If checkTime falls inside the quiet-hours window, return the timestamp
+     * of the window's end. Otherwise return checkTime unchanged.
+     */
+    private static long computeQuietHoursEnd(long checkTime) {
+        int startMin = SettingManager.getQuietHoursStart();
+        int endMin = SettingManager.getQuietHoursEnd();
+        if (startMin == endMin) return checkTime; // effectively disabled
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(checkTime);
+        int curMin = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+
+        boolean inQuiet;
+        if (startMin < endMin) {
+            inQuiet = curMin >= startMin && curMin < endMin;
+        } else {
+            // Crosses midnight, e.g. 22:00–08:00
+            inQuiet = curMin >= startMin || curMin < endMin;
+        }
+        if (!inQuiet) return checkTime;
+
+        Calendar end = (Calendar) cal.clone();
+        end.set(Calendar.HOUR_OF_DAY, endMin / 60);
+        end.set(Calendar.MINUTE, endMin % 60);
+        end.set(Calendar.SECOND, 0);
+        end.set(Calendar.MILLISECOND, 0);
+        if (end.getTimeInMillis() <= checkTime) {
+            end.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        return end.getTimeInMillis();
     }
 
     private void executeCurrentSend() {

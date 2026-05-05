@@ -42,6 +42,15 @@ public class SettingManager {
     private static final String DARK_MODE_KEY = "dark_mode_v1";
     private static final String SENSITIVE_WORD_FILTER_KEY = "sensitive_word_filter_v1";
     private static final String LANGUAGE_CHOSEN_KEY = "language_chosen_v1";
+    private static final String BATCH_PAUSE_ENABLED_KEY = "batch_pause_enabled_v1";
+    private static final String BATCH_SIZE_KEY = "batch_size_v1";
+    private static final String BATCH_PAUSE_MIN_MIN_KEY = "batch_pause_min_min_v1";
+    private static final String BATCH_PAUSE_MAX_MIN_KEY = "batch_pause_max_min_v1";
+    private static final String QUIET_HOURS_ENABLED_KEY = "quiet_hours_enabled_v1";
+    private static final String QUIET_HOURS_START_KEY = "quiet_hours_start_v1";
+    private static final String QUIET_HOURS_END_KEY = "quiet_hours_end_v1";
+    private static final String SCHEDULE_SPREAD_ENABLED_KEY = "schedule_spread_enabled_v1";
+    private static final String SCHEDULE_SPREAD_HOURS_KEY = "schedule_spread_hours_v1";
 
     /** 深色模式值常量：跟随系统 */
     public static final int DARK_MODE_SYSTEM = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
@@ -63,7 +72,54 @@ public class SettingManager {
         DefaultPropMap.put(DARK_MODE_KEY, DARK_MODE_SYSTEM);
         DefaultPropMap.put(SENSITIVE_WORD_FILTER_KEY, true);
         DefaultPropMap.put(LANGUAGE_CHOSEN_KEY, false);
+        DefaultPropMap.put(BATCH_PAUSE_ENABLED_KEY, Settings.BATCH_PAUSE_DEFAULT);
+        DefaultPropMap.put(BATCH_SIZE_KEY, Settings.BATCH_SIZE_DEFAULT);
+        DefaultPropMap.put(BATCH_PAUSE_MIN_MIN_KEY, Settings.BATCH_PAUSE_MIN_MIN_DEFAULT);
+        DefaultPropMap.put(BATCH_PAUSE_MAX_MIN_KEY, Settings.BATCH_PAUSE_MAX_MIN_DEFAULT);
+        DefaultPropMap.put(QUIET_HOURS_ENABLED_KEY, Settings.QUIET_HOURS_DEFAULT);
+        DefaultPropMap.put(QUIET_HOURS_START_KEY, Settings.QUIET_HOURS_START_DEFAULT);
+        DefaultPropMap.put(QUIET_HOURS_END_KEY, Settings.QUIET_HOURS_END_DEFAULT);
+        DefaultPropMap.put(SCHEDULE_SPREAD_ENABLED_KEY, Settings.SCHEDULE_SPREAD_DEFAULT);
+        DefaultPropMap.put(SCHEDULE_SPREAD_HOURS_KEY, Settings.SCHEDULE_SPREAD_HOURS_DEFAULT);
     }
+
+    // Anti-spam: batch pause
+    public static boolean isBatchPauseEnabled() {
+        return mSp.getBoolean(BATCH_PAUSE_ENABLED_KEY, Settings.BATCH_PAUSE_DEFAULT);
+    }
+    public static void setBatchPauseEnabled(boolean v) { mEditor.putBoolean(BATCH_PAUSE_ENABLED_KEY, v).apply(); }
+
+    public static int getBatchSize() { return mSp.getInt(BATCH_SIZE_KEY, Settings.BATCH_SIZE_DEFAULT); }
+    public static void setBatchSize(int v) { mEditor.putInt(BATCH_SIZE_KEY, v).apply(); }
+
+    public static int getBatchPauseMinMinutes() { return mSp.getInt(BATCH_PAUSE_MIN_MIN_KEY, Settings.BATCH_PAUSE_MIN_MIN_DEFAULT); }
+    public static void setBatchPauseMinMinutes(int v) { mEditor.putInt(BATCH_PAUSE_MIN_MIN_KEY, v).apply(); }
+
+    public static int getBatchPauseMaxMinutes() { return mSp.getInt(BATCH_PAUSE_MAX_MIN_KEY, Settings.BATCH_PAUSE_MAX_MIN_DEFAULT); }
+    public static void setBatchPauseMaxMinutes(int v) { mEditor.putInt(BATCH_PAUSE_MAX_MIN_KEY, v).apply(); }
+
+    // Anti-spam: quiet hours
+    public static boolean isQuietHoursEnabled() {
+        return mSp.getBoolean(QUIET_HOURS_ENABLED_KEY, Settings.QUIET_HOURS_DEFAULT);
+    }
+    public static void setQuietHoursEnabled(boolean v) { mEditor.putBoolean(QUIET_HOURS_ENABLED_KEY, v).apply(); }
+
+    /** @return minutes from midnight (0-1439) */
+    public static int getQuietHoursStart() { return mSp.getInt(QUIET_HOURS_START_KEY, Settings.QUIET_HOURS_START_DEFAULT); }
+    public static void setQuietHoursStart(int v) { mEditor.putInt(QUIET_HOURS_START_KEY, v).apply(); }
+
+    /** @return minutes from midnight (0-1439) */
+    public static int getQuietHoursEnd() { return mSp.getInt(QUIET_HOURS_END_KEY, Settings.QUIET_HOURS_END_DEFAULT); }
+    public static void setQuietHoursEnd(int v) { mEditor.putInt(QUIET_HOURS_END_KEY, v).apply(); }
+
+    // Anti-spam: schedule spread
+    public static boolean isScheduleSpreadEnabled() {
+        return mSp.getBoolean(SCHEDULE_SPREAD_ENABLED_KEY, Settings.SCHEDULE_SPREAD_DEFAULT);
+    }
+    public static void setScheduleSpreadEnabled(boolean v) { mEditor.putBoolean(SCHEDULE_SPREAD_ENABLED_KEY, v).apply(); }
+
+    public static int getScheduleSpreadHours() { return mSp.getInt(SCHEDULE_SPREAD_HOURS_KEY, Settings.SCHEDULE_SPREAD_HOURS_DEFAULT); }
+    public static void setScheduleSpreadHours(int v) { mEditor.putInt(SCHEDULE_SPREAD_HOURS_KEY, v).apply(); }
 
     public static boolean isLanguageChosen() {
         return mSp.getBoolean(LANGUAGE_CHOSEN_KEY, false);
