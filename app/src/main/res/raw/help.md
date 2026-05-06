@@ -1,51 +1,53 @@
-## Basic Usage
+## Basic usage
 
-1. Import data
-2. Select the recipient phone number column
-3. Edit SMS content
-4. Select SIM card
-5. Start sending
+1. Import a member list (Excel, CSV or JSON)
+2. Pick which column holds the phone number
+3. Write the SMS template (with optional `${variables}` from the columns)
+4. Tap **Send** and confirm
 
-Tip: MsgGo allows you to import data by sharing or sending Excel files from other apps!
+Tip: you can also share an Excel/CSV/JSON file from another app to Utskick, and it will open the import flow automatically.
 
-## Excel Format Requirements
+## Supported file formats
 
-| Column Name | Column Name | Column Name | ... |
-|-------------|-------------|-------------|-----|
-| Data        | Data        | Data        | ... |
-| Data        | Data        | Data        | ... |
-| ...         |             |             |     |
+- **Excel** (`.xls`, `.xlsx`) — first row is column titles
+- **CSV** (`.csv`, `.tsv`, `.txt`) — first row is column titles, separator is auto-detected (`,`, `;`, tab), UTF-8 with or without BOM
+- **JSON** (`.json`) — array of objects, e.g. `[{"name":"Anna","number":"+46..."}]`
 
-Notes:
-1. Compatible with .xls/.xlsx formats
-2. Excel rows number limit: 200, size limit: 50MB
-3. Do not set the sending delay too short, or you may encounter carrier blocking issues.
-4. Please be aware that carriers usually impose sending limits. For example, some carriers limit users to 200 messages/hour and 1,000 messages/day. Exceeding these limits may result in restricted sending/receiving capabilities.
+Limits: max 200 rows per file, max 50 MB file size.
 
-## Magic Variables
+## Variables (`${...}`)
 
-What are Magic Variables?
+Each column in your imported file becomes a variable you can drop into the message template. Example with this list:
 
-Consider the following scenario:
+| Name | PhoneNumber |
+|------|-------------|
+| Anna | +46701234567 |
+| Bo   | +46702345678 |
 
-> You want to send a message to multiple people: Dear ${xxx}, hello, balabala...
+Template:
 
-Here, `${xxx}` is our Magic Variable. In the imported Excel file, each magic variable corresponds to a column. For example:
+> Hello ${Name}, your member number is ${PhoneNumber}.
 
-| Name | Phone Number |
-|------|--------------|
-| John | 123          |
-| Mike | 456          |
+Will produce two unique messages:
 
-In this case, there are two magic variables: `Name` and `Phone Number`. In the SMS editor, simply click the small button in the bottom left corner to select the variable you need, such as:
+| Name | PhoneNumber  | Resulting SMS                                    |
+|------|--------------|--------------------------------------------------|
+| Anna | +46701234567 | Hello Anna, your member number is +46701234567.  |
+| Bo   | +46702345678 | Hello Bo, your member number is +46702345678.    |
 
-> Hello ${Name}, your phone number is ${Phone Number}
+Why this matters: **carrier spam filters react to identical messages sent in bulk.** Personalising every SMS with at least one variable is the single most effective defense.
 
-The software will automatically replace the variables based on each row of data:
+## Avoiding carrier blocks
 
-| Name | Phone Number | Resulting SMS Content                |
-|------|--------------|--------------------------------------|
-| John | 123          | Hello John, your phone number is 123 |
-| Mike | 456          | Hello Mike, your phone number is 456 |
+Operators monitor outgoing volume. To stay below the radar:
 
-If this app helps you, please give it a star! :)
+- Keep **Send delay** at 3 s or higher and leave **Randomize delay** on
+- Enable **Batch pause** (Settings → Anti-spam protection): pause 5–15 min after every 30 SMS
+- Enable **Quiet hours**: don't send between 22:00 and 08:00
+- For very large lists, enable **Time spread** so the send is spread over hours rather than minutes
+
+If you start seeing failures, slow down and try again the next day.
+
+## GDPR / consent
+
+For Swedish associations: make sure your members have **opted in** to receive SMS from your organisation, and offer a clear way to opt out (a phrase like *"Reply STOP to unsubscribe"* in the message is good practice). The app does not handle this for you — it is your responsibility as the sender.
