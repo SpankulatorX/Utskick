@@ -9,7 +9,7 @@
 
 ## ⬇️ Ladda ner appen
 
-> **[Utskick-1.0.0-universal.apk](https://github.com/SpankulatorX/Utskick/releases/latest)** — direkt nedladdning från GitHub Releases.
+> **[Senaste APK från GitHub Releases](https://github.com/SpankulatorX/Utskick/releases/latest)** — välj `Utskick-X.Y.Z-universal.apk`.
 
 På din Android-telefon:
 
@@ -20,8 +20,19 @@ På din Android-telefon:
 
 Inga utvecklarkunskaper behövs. Funkar på GrapheneOS och vanlig Android 8+.
 
-**SHA-256 av v1.0.0-APK:n:** `f24fae5eb7a134ba7529754c195bf46a0a276dbc0c10eb81cda34d88ee4fca8c`
-(Verifiera med `apksigner verify --print-certs Utskick-1.0.0-universal.apk` om du är paranoid — det rekommenderas.)
+**Verifiera APK-signaturen** (rekommenderas):
+
+```
+apksigner verify --print-certs Utskick-X.Y.Z-universal.apk
+```
+
+Förväntad signaturägare:
+
+```
+Signer #1 certificate DN: CN=Jonas Millard, O=Utskick, C=SE
+```
+
+SHA-256 för varje release publiceras i [release-anteckningarna](https://github.com/SpankulatorX/Utskick/releases). Samma signeringsnyckel används för alla framtida versioner — om SHA-256 av certifikatet (inte APK:n) ändras mellan versioner är något fel.
 
 ---
 
